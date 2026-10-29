@@ -4,261 +4,407 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mon Compteur de Tricot</title>
-    <!-- Balises pour simuler une application iOS native -->
+    <title>knit flow counter ✧</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Tricot App">
+    <meta name="apple-mobile-web-app-title" content="knit flow">
 
     <style>
         :root {
-            --bg-color: #f5f5f7;
-            --card-color: #ffffff;
-            --text-color: #1d1d1f;
-            --accent-color: #0071e3;
-            --secondary-text: #86868b;
-            --active-step-bg: #e8f2fc;
+            --lavenderblush: #fff0f5;
+            --lavender: #e6e6fa;
+            --mediumslateblue: #c9a5c5;
+            --purple-bar: #9370db;
+            --text-purple: #7b68ee;
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            font-family: monospace, -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--lavenderblush);
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            height: 100vh;
             display: flex;
             flex-direction: column;
+            justify-content: space-between;
             align-items: center;
+            overflow: hidden;
             -webkit-user-select: none;
             user-select: none;
         }
 
-        .container {
+        /* Top Header Component */
+        header {
             width: 100%;
-            max-width: 500px;
-            margin-top: 20px;
-        }
-
-        .stats-card {
-            background-color: var(--card-color);
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            font-size: 0.9rem;
-            line-height: 1.4;
-        }
-
-        .stats-title {
+            background-color: var(--lavender);
+            color: var(--text-purple);
+            padding: 8px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             font-weight: bold;
-            color: var(--accent-color);
-            margin-bottom: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
-        .instructions-list {
-            background-color: var(--card-color);
-            border-radius: 12px;
-            padding: 10px 0;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        header .title {
+            color: var(--text-purple);
+        }
+
+        header .clock {
+            background-color: var(--mediumslateblue);
+            color: var(--lavenderblush);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        /* Centered Layout System */
+        .viewport-center {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 20px;
+        }
+
+        /* Textual #container simulation */
+        #container {
+            background-color: var(--mediumslateblue);
+            border: 6px double var(--lavender);
+            border-radius: 4px;
+            width: 80%;
+            max-width: 600px;
+            height: 320px;
+            /* proportionnel aux 16 lignes de hauteur du terminal */
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        #text-display {
+            color: var(--lavenderblush);
+            font-weight: bold;
+            font-size: 1.25rem;
+            text-align: center;
+            width: 100%;
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 0;
+            word-wrap: break-word;
+        }
+
+        #explanation-display {
+            color: var(--lavenderblush);
+            font-style: italic;
+            font-size: 0.95rem;
+            text-align: center;
+            width: 100%;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+
+        #meta-info {
+            color: var(--lavender);
+            font-size: 0.9rem;
+            text-align: center;
+            width: 100%;
             margin-bottom: 20px;
         }
 
-        .step {
+        /* ProgressBar Widget */
+        .progress-bar-container {
+            width: 100%;
+            background-color: var(--purple-bar);
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background-color: var(--lavenderblush);
+            width: 0%;
+            transition: width 0.2s ease;
+        }
+
+        /* Bottom Footer Component */
+        footer {
+            width: 100%;
+            background-color: var(--lavender);
+            color: var(--text-purple);
+            padding: 6px 20px;
+            display: flex;
+            gap: 15px;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        footer .binding-item {
             display: flex;
             align-items: center;
-            padding: 12px 15px;
-            border-bottom: 1px solid #f2f2f7;
-            font-size: 1rem;
-            transition: background-color 0.2s;
+            gap: 4px;
         }
 
-        .step:last-child {
-            border-bottom: none;
+        footer .key {
+            color: var(--purple-bar);
+            font-weight: bold;
         }
 
-        .step.active {
-            background-color: var(--active-step-bg);
-            font-weight: 600;
+        footer .description {
+            color: var(--text-purple);
         }
 
-        .step-number {
-            min-width: 25px;
-            color: var(--secondary-text);
-            font-size: 0.85rem;
-        }
-
-        .step.active .step-number {
-            color: var(--accent-color);
-        }
-
-        .controls {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 10px;
-            width: 100%;
-        }
-
-        button {
-            border: none;
-            border-radius: 12px;
-            padding: 15px;
-            font-size: 1rem;
-            font-weight: 600;
+        /* Mode Mobile / Tactile click fallback */
+        .clickable-overlay {
             cursor: pointer;
-            transition: opacity 0.1s;
         }
 
-        button:active {
-            opacity: 0.7;
-        }
-
-        .btn-back {
-            background-color: #e8e8ed;
-            color: var(--text-color);
-        }
-
-        .btn-next {
-            background-color: var(--accent-color);
-            color: white;
-        }
-
-        .btn-reset {
-            background-color: transparent;
-            color: #ff3b30;
-            margin-top: 20px;
-            font-size: 0.85rem;
+        /* Conteneur des boutons mignons */
+        .cute-buttons-wrapper {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
             width: 100%;
-            text-align: center;
+            justify-content: center;
+        }
+
+        /* Style des boutons en harmonie avec le thème */
+        .cute-btn {
+            background-color: var(--lavenderblush);
+            color: var(--text-purple);
+            border: 2px solid var(--lavender);
+            border-radius: 20px;
+            padding: 8px 24px;
+            font-family: monospace;
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 0px var(--purple-bar);
+            transition: all 0.1s ease;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        /* Effet au survol (Hover) */
+        .cute-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0px var(--purple-bar);
+            background-color: var(--lavender);
+        }
+
+        /* Effet au clic (Active) */
+        .cute-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0px var(--purple-bar);
         }
     </style>
 </head>
 
 <body>
 
-    <div class="container">
-        <div class="stats-card">
-            <div class="stats-title" id="row-title">Chargement...</div>
-            <div id="row-stats" style="color: var(--secondary-text);"></div>
-        </div>
+    <!-- Header Widget -->
+    <header>
+        <span class="title">knit flow counter ✧</span>
+        <span class="clock" id="header-clock">00:00:00</span>
+    </header>
 
-        <div class="instructions-list" id="instructions-container">
-            <!-- Rempli dynamiquement -->
-        </div>
+    <!-- Center & Middle Container System -->
+    <div class="viewport-center">
+        <div id="container">
+            <div id="text-display"></div>
+            <div id="explanation-display"></div>
+            <div id="meta-info"></div>
 
-        <div class="controls">
-            <button class="btn-back" onclick="prevStep()">Retour</button>
-            <button class="btn-next" onclick="nextStep()">Suivant</button>
-        </div>
+            <!-- Ajout des boutons mignons à l'intérieur du bloc -->
+            <div class="cute-buttons-wrapper">
+                <button class="cute-btn" onclick="prevStep()">☁ back</button>
+                <button class="cute-btn" onclick="nextStep()">✧ next</button>
+            </div>
 
-        <button class="btn-reset" onclick="resetApp()">Remettre à zéro</button>
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill" id="progress-fill"></div>
+            </div>
+        </div>
     </div>
 
+    <!-- Footer Widget (Bindings Reference) -->
+    <footer>
+        <div class="binding-item"><span class="key">left</span><span class="description">☁ back</span></div>
+        <div class="binding-item"><span class="key">right</span><span class="description">✧ next</span></div>
+        <div class="binding-item"><span class="key">space</span><span class="description">⋆ space</span></div>
+        <div class="binding-item"><span class="key">q</span><span class="description">☁ quit</span></div>
+    </footer>
+
     <script>
-        // Votre base de données de lignes de tricot
-        const rows = [
-            ["Row 1 ! Knit until 1st marker", "SM", "M1L", "k2", "turn", "Total: 123 (123, 127, 131, 135) 143, 151, 163 | Dos: 35 (35, 35, 37, 37) 41, 43, 49 | Devant: 56 (56, 56, 58, 58) 62, 64, 70 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
-            ["Row 2 ! Sl1wYO", "purl until 2nd marker (beg)", "SM", "M1PL", "purl until 3rd marker", "M1PR", "SM", "purl until 4th marker", "SM", "M1PL", "p2", "turn", "Total: 126 (126, 130, 134, 138) 146, 154, 166 | Dos: 37 (37, 37, 39, 39) 43, 45, 51 | Devant: 57 (57, 57, 59, 59) 63, 65, 71 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
-            ["Row 3 (1st time) ! Sl1wYO", "knit until 2nd marker", "SM", "M1L", "knit until 3rd marker (beg)", "M1R", "SM", "knit until 4th marker", "SM", "M1L", "knit until last turn", "knit the turn", "k1", "turn", "Total: 129 (129, 133, 137, 141) 149, 157, 169 | Dos: 39 (39, 39, 41, 41) 45, 47, 53 | Devant: 58 (58, 58, 60, 60) 64, 66, 72 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
-            ["Row 4 (1st time) ! Sl1wYO", "purl until 2nd marker (beg)", "SM", "M1PL", "purl until 3rd marker", "M1PR", "SM", "purl until 4th marker", "SM", "M1PL", "purl until last turn", "purl the turn", "p1", "turn", "Total: 132 (132, 136, 140, 144) 152, 160, 172 | Dos: 41 (41, 41, 43, 43) 47, 49, 55 | Devant: 59 (59, 59, 61, 61) 65, 67, 73 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
-            ["Row 3 (2nd time) ! Sl1wYO", "knit until 2nd marker", "SM", "M1L", "knit until 3rd marker (beg)", "M1R", "SM", "knit until 4th marker", "SM", "M1L", "knit until last turn", "knit the turn", "k1", "turn", "Total: 135 (135, 139, 143, 147) 155, 163, 175 | Dos: 43 (43, 43, 45, 45) 49, 51, 57 | Devant: 60 (60, 60, 62, 62) 66, 68, 74 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
-            ["Row 4 (2nd time) ! Sl1wYO", "purl until 2nd marker (beg)", "SM", "M1PL", "purl until 3rd marker", "M1PR", "SM", "purl until 4th marker", "SM", "M1PL", "purl until last turn", "purl the turn", "p1", "turn", "Total: 138 (138, 142, 146, 150) 158, 166, 178 | Dos: 45 (45, 45, 47, 47) 51, 53, 59 | Devant: 61 (61, 61, 63, 63) 67, 69, 75 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
-            ["Row 3 (3rd time) ! Sl1wYO", "knit until 2nd marker", "SM", "M1L", "knit until 3rd marker (beg)", "M1R", "SM", "knit until 4th marker", "SM", "M1L", "knit until last turn", "knit the turn", "k1", "turn", "Total: 141 (141, 145, 149, 153) 161, 169, 181 | Dos: 47 (47, 47, 49, 49) 53, 55, 61 | Devant: 62 (62, 62, 64, 64) 68, 70, 76 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
-            ["Row 4 (3rd time) ! Sl1wYO", "purl until 2nd marker (beg)", "SM", "M1PL", "purl until 3rd marker", "M1PR", "SM", "purl until 4th marker", "SM", "M1PL", "purl until last turn", "purl the turn", "p1", "turn", "Total: 144 (144, 148, 152, 156) 164, 172, 184 | Dos: 49 (49, 49, 51, 51) 55, 57, 63 | Devant: 63 (63, 63, 65, 65) 69, 71, 77 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
-            ["Row 3 (4th time) ! Sl1wYO", "knit until 2nd marker", "SM", "M1L", "knit until 3rd marker (beg)", "M1R", "SM", "knit until 4th marker", "SM", "M1L", "knit until last turn", "knit the turn", "k1", "turn", "Total: 147 (147, 151, 155, 159) 167, 175, 187 | Dos: 51 (51, 51, 53, 53) 57, 59, 65 | Devant: 64 (64, 64, 66, 66) 70, 72, 78 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
-            ["Row 4 (4th time) ! Sl1wYO", "purl until 2nd marker (beg)", "SM", "M1PL", "purl until 3rd marker", "M1PR", "SM", "purl until 4th marker", "SM", "M1PL", "purl until last turn", "purl the turn", "p1", "turn", "Total: 150 (150, 154, 158, 162) 170, 178, 190 | Dos: 53 (53, 53, 55, 55) 59, 61, 67 | Devant: 65 (65, 65, 67, 67) 71, 73, 79 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
-            ["Row 3 (5th time) ! Sl1wYO", "knit until 2nd marker", "SM", "M1L", "knit until 3rd marker (beg)", "M1R", "SM", "knit until 4th marker", "SM", "M1L", "knit until last turn", "knit the turn", "k1", "turn", "Total: 153 (153, 157, 161, 165) 173, 181, 193 | Dos: 55 (55, 55, 57, 57) 61, 63, 69 | Devant: 66 (66, 66, 68, 68) 72, 74, 80 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
-            ["Row 4 (5th time) ! Sl1wYO", "purl until 2nd marker (beg)", "SM", "M1PL", "purl until 3rd marker", "M1PR", "SM", "purl until 4th marker", "SM", "M1PL", "purl until last turn", "purl the turn", "p1", "turn", "Total: 156 (156, 160, 164, 168) 176, 184, 196 | Dos: 57 (57, 57, 59, 59) 63, 65, 71 | Devant: 67 (67, 67, 69, 69) 73, 75, 81 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
-            ["Row 3 (6th time) ! Sl1wYO", "knit until 2nd marker", "SM", "M1L", "knit until 3rd marker (beg)", "M1R", "SM", "knit until 4th marker", "SM", "M1L", "knit until last turn", "knit the turn", "k1", "turn", "Total: 159 (159, 163, 167, 171) 179, 187, 199 | Dos: 59 (59, 59, 61, 61) 65, 67, 73 | Devant: 68 (68, 68, 70, 70) 74, 76, 82 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
-            ["Row 4 (6th time) ! Sl1wYO", "purl until 2nd marker (beg)", "SM", "M1PL", "purl until 3rd marker", "M1PR", "SM", "purl until 4th marker", "SM", "M1PL", "purl until last turn", "purl the turn", "p1", "turn", "Total: 162 (162, 166, 170, 174) 182, 190, 202 | Dos: 61 (61, 61, 63, 63) 67, 69, 75 | Devant: 69 (69, 69, 71, 71) 75, 77, 83 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
-            ["Row 3 (7th time) ! Sl1wYO", "knit until 2nd marker", "SM", "M1L", "knit until 3rd marker (beg)", "M1R", "SM", "knit until 4th marker", "SM", "M1L", "knit until last turn", "knit the turn", "k1", "turn", "Total: 165 (165, 169, 173, 177) 185, 193, 205 | Dos: 63 (63, 63, 65, 65) 69, 71, 77 | Devant: 70 (70, 70, 72, 72) 76, 78, 84 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
-            ["Row 4 (7th time) ! Sl1wYO", "purl until 2nd marker (beg)", "SM", "M1PL", "purl until 3rd marker", "M1PR", "SM", "purl until 4th marker", "SM", "M1PL", "purl until last turn", "purl the turn", "p1", "turn", "Total: 168 (168, 172, 176, 180) 188, 196, 208 | Dos: 65 (65, 65, 67, 67) 71, 73, 79 | Devant: 71 (71, 71, 73, 73) 77, 79, 85 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
-            ["Row 5 ! Sl1wYO", "knit until 2nd marker", "SM", "M1L", "knit until 3rd marker (beginning/end of rnd)", "M1R", "SM", "knit until 4th marker", "SM", "M1L", "knit until the last turn", "knit the turn st", "k2", "turn", "Total: 171 (171, 175, 179, 183) 191, 199, 211 | Dos: 67 (67, 67, 69, 69) 73, 75, 81 | Devant: 72 (72, 72, 74, 74) 78, 80, 86 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
-            ["Row 6 ! Sl1wYO", "purl until 2nd marker (beginning/end of rnd)", "SM", "M1PL", "purl until 3rd marker", "M1PR", "SM", "purl until 4th marker", "SM", "M1PL", "purl until last turn", "purl the turn st", "p2", "turn", "Total: 174 (174, 178, 182, 186) 194, 202, 214 | Dos: 69 (69, 69, 71, 71) 75, 77, 83 | Devant: 73 (73, 73, 75, 75) 79, 81, 87 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
-            ["Row 7 ! Sl1wYO", "knit until 2nd marker", "SM", "M1L", "knit until 3rd marker (beginning/end of rnd)", "M1R", "SM", "knit until 4th marker", "SM", "M1L", "knit until the last turn", "knit the turn st", "k3", "turn", "Total: 177 (177, 181, 185, 189) 197, 205, 217 | Dos: 71 (71, 71, 73, 73) 77, 79, 85 | Devant: 74 (74, 74, 76, 76) 80, 82, 88 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
-            ["Row 8 ! Sl1wYO", "purl until 2nd marker (beginning/end of rnd)", "SM", "M1PL", "purl until 3rd marker", "M1PR", "SM", "purl until 4th marker", "SM", "M1PL", "purl until last turn", "purl the turn st", "p3", "turn", "Total: 180 (180, 184, 188, 192) 200, 208, 220 | Dos: 73 (73, 73, 75, 75) 79, 81, 87 | Devant: 75 (75, 75, 77, 77) 81, 83, 89 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
-            ["Row 9 ! Sl1wYO", "knit until 2nd marker", "SM", "M1L", "knit until 3rd marker (beginning/end of rnd)", "M1R", "Total: 182 (182, 186, 190, 194) 202, 210, 222 | Dos: 75 (75, 75, 77, 77) 81, 83, 89 | Devant: 75 (75, 75, 77, 77) 81, 83, 89 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"]
-        ];
-        // Indices d'état (Ligne actuelle, Étape actuelle)
-        let currentRowIndex = 0;
-        let currentStepIndex = 0;
-        // Charger l'état sauvegardé au démarrage
-        function loadProgress() {
-            const savedRow = localStorage.getItem('knitting_row');
-            const savedStep = localStorage.getItem('knitting_step');
-            if (savedRow !== null && savedStep !== null) {
-                currentRowIndex = parseInt(savedRow);
-                currentStepIndex = parseInt(savedStep);
-            }
-        }
-        // Sauvegarder l'état actuel
-        function saveProgress() {
-            localStorage.setItem('knitting_row', currentRowIndex);
-            localStorage.setItem('knitting_step', currentStepIndex);
-        }
+        // Dictionnaire technique d'extraction des abréviations
+        const TECHNICAL_GLOSSARY = {
+            "m1l": "⋆ insert left needle under strand between two sts from front to back, knit the strand tbl",
+            "m1r": "⋆ insert left needle under strand between two sts from back to front, knit the strand",
+            "m1pl": "⋆ insert left needle under strand between two sts from front to back, purl the strand tbl",
+            "m1pr": "⋆ insert left needle under strand between two sts from back to front, purl the strand",
+            "sl1wyo": "⋆ slip 1 with yarn over (to create the turn stitch for german short rows)",
+            "sm": "⋆ slip marker",
+            "k1": "⋆ knit 1 stitch",
+            "k2": "⋆ knit 2 stitches",
+            "k3": "⋆ knit 3 stitches",
+            "p1": "⋆ purl 1 stitch",
+            "p2": "⋆ purl 2 stitches",
+            "p3": "⋆ purl 3 stitches",
+            "turn": "⋆ turn the work over to start the next short row"
+        };
 
-        // Mettre à jour l'interface utilisateur
-        function updateUI() {
-            if (currentRowIndex >= rows.length) {
-                document.getElementById('row-title').innerText = "🎉 Félicitations !";
-                document.getElementById('row-stats').innerText = "Toutes les lignes ont été complétées.";
-                document.getElementById('instructions-container').innerHTML = "Plus d'étapes à faire !";
-                return;
-            }
-            const rowData = rows[currentRowIndex];
-            const steps = rowData.slice(0, -1); // Toutes les étapes d'action
-            const stats = rowData[rowData.length - 1]; // La chaîne finale des statistiques
-            // Extraction du titre à partir de la première étape
-            const titleMatch = steps[0].split(" ! ");
-            const displayTitle = titleMatch.length > 1 ? titleMatch[0] : `Rang ${ currentRowIndex + 1}`;
-        document.getElementById('row-title').innerText = displayTitle;
-        document.getElementById('row-stats').innerText = stats;
-        // Rendu graphique des étapes
-        const container = document.getElementById('instructions-container');
-        container.innerHTML = "";
-        steps.forEach((stepText, index) => {
-            let cleanText = stepText;
-            // Nettoyer le tag "Row X !" de la première étape pour l'affichage épuré
-            if (index === 0 && stepText.includes(" ! ")) {
-                cleanText = stepText.split(" ! ")[1];
-            }
-            const stepDiv = document.createElement('div');
-            stepDiv.className = `step ${ index === currentStepIndex ? 'active' : '' }`;
-            stepDiv.innerHTML = <><div class="step-number">${index + 1}</div> <div class="step-text">${cleanText}</div></>;
-            container.appendChild(stepDiv);
+        // Données d'origine générées
+        const row1 = ["Row 1 ! Knit until 1st marker", "SM", ["M1L", "m1l"], "k2", "turn", "Total: 123 (123, 127, 131, 135) 143, 151, 163 | Dos: 35 (35, 35, 37, 37) 41, 43, 49 | Devant: 56 (56, 56, 58, 58) 62, 64, 70 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"];
+        const row2 = ["Row 2 ! Sl1wYO", "purl until 2nd marker (beg)", "SM", ["M1PL", "m1pl"], "purl until 3rd marker", ["M1PR", "m1pr"], "SM", "purl until 4th marker", "SM", ["M1PL", "m1pl"], "p2", "turn", "Total: 126 (126, 130, 134, 138) 146, 154, 166 | Dos: 37 (37, 37, 39, 39) 43, 45, 51 | Devant: 57 (57, 57, 59, 59) 63, 65, 71 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"];
+        const row3_1st = ["Row 3 (1st time) ! Sl1wYO", "knit until 2nd marker", "SM", ["M1L", "m1l"], "knit until 3rd marker (beg)", ["M1R", "m1r"], "SM", "knit until 4th marker", "SM", ["M1L", "m1l"], "knit until last turn", "knit the turn", "k1", "turn", "Total: 129 (129, 133, 137, 141) 149, 157, 169 | Dos: 39 (39, 39, 41, 41) 45, 47, 53 | Devant: 58 (58, 58, 60, 60) 64, 66, 72 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"];
+        const row4_1st = ["Row 4 (1st time) ! Sl1wYO", "purl until 2nd marker (beg)", "SM", ["M1PL", "m1pl"], "purl until 3rd marker", ["M1PR", "m1pr"], "SM", "purl until 4th marker", "SM", ["M1PL", "m1pl"], "purl until last turn", "purl the turn", "p1", "turn", "Total: 132 (132, 136, 140, 144) 152, 160, 172 | Dos: 41 (41, 41, 43, 43) 47, 49, 55 | Devant: 59 (59, 59, 61, 61) 65, 67, 73 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"];
+        const row3_2nd = ["Row 3 (2nd time) ! Sl1wYO", "knit until 2nd marker", "SM", ["M1L", "m1l"], "knit until 3rd marker (beg)", ["M1R", "m1r"], "SM", "knit until 4th marker", "SM", ["M1L", "m1l"], "knit until last turn", "knit the turn", "k1", "turn", "Total: 135 (135, 139, 143, 147) 155, 163, 175 | Dos: 43 (43, 43, 45, 45) 49, 51, 57 | Devant: 60 (60, 60, 62, 62) 66, 68, 74 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"];
+        const row4_2nd = ["Row 4 (2nd time) ! Sl1wYO", "purl until 2nd marker (beg)", "SM", ["M1PL", "m1pl"], "purl until 3rd marker", ["M1PR", "m1pr"], "SM", "purl until 4th marker", "SM", ["M1PL", "m1pl"], "purl until last turn", "purl the turn", "p1", "turn", "Total: 138 (138, 142, 146, 150) 158, 166, 178 | Dos: 45 (45, 45, 47, 47) 51, 53, 59 | Devant: 61 (61, 61, 63, 63) 67, 69, 75 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"];
+        const row3_3rd = ["Row 3 (3rd time) ! Sl1wYO", "knit until 2nd marker", "SM", ["M1L", "m1l"], "knit until 3rd marker (beg)", ["M1R", "m1r"], "SM", "knit until 4th marker", "SM", ["M1L", "m1l"], "knit until last turn", "knit the turn", "k1", "turn", "Total: 141 (141, 145, 149, 153) 161, 169, 181 | Dos: 47 (47, 47, 49, 49) 53, 55, 61 | Devant: 62 (62, 62, 64, 64) 68, 70, 76 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"];
+        const row4_3rd = ["Row 4 (3rd time) ! Sl1wYO", "purl until 2nd marker (beg)", "SM", ["M1PL", "m1pl"], "purl until 3rd marker", ["M1PR", "m1pr"], "SM", "purl until 4th marker", "SM", ["M1PL", "m1pl"], "purl until last turn", "purl the turn", "p1", "turn", "Total: 144 (144, 148, 152, 156) 164, 172, 184 | Dos: 49 (49, 49, 51, 51) 55, 57, 63 | Devant: 63 (63, 63, 65, 65) 69, 71, 77 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"];
+        const row3_4th = ["Row 3 (4th time) ! Sl1wYO", "knit until 2nd marker", "SM", ["M1L", "m1l"], "knit until 3rd marker (beg)", ["M1R", "m1r"], "SM", "knit until 4th marker", "SM", ["M1L", "m1l"], "knit until last turn", "knit the turn", "k1", "turn", "Total: 147 (147, 151, 155, 159) 167, 175, 187 | Dos: 51 (51, 51, 53, 53) 57, 59, 65 | Devant: 64 (64, 64, 66, 66) 70, 72, 78 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"];
+        const row4_4th = ["Row 4 (4th time) ! Sl1wYO", "purl until 2nd marker (beg)", "SM", ["M1PL", "m1pl"], "purl until 3rd marker", ["M1PR", "m1pr"], "SM", "purl until 4th marker", "SM", ["M1PL", "m1pl"], "purl until last turn", "purl the turn", "p1", "turn", "Total: 150 (150, 154, 158, 162) 170, 178, 190 | Dos: 53 (53, 53, 55, 55) 59, 61, 67 | Devant: 65 (65, 65, 67, 67) 71, 73, 79 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"];
+        const row3_5th = ["Row 3 (5th time) ! Sl1wYO", "knit until 2nd marker", "SM", ["M1L", "m1l"], "knit until 3rd marker (beg)", ["M1R", "m1r"], "SM", "knit until 4th marker", "SM", ["M1L", "m1l"], "knit until last turn", "knit the turn", "k1", "turn", "Total: 153 (153, 157, 161, 165) 173, 181, 193 | Dos: 55 (55, 55, 57, 57) 61, 63, 69 | Devant: 66 (66, 66, 68, 68) 72, 74, 80 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"];
+        const row4_5th = ["Row 4 (5th time) ! Sl1wYO", "purl until 2nd marker (beg)", "SM", ["M1PL", "m1pl"], "purl until 3rd marker", ["M1PR", "m1pr"], "SM", "purl until 4th marker", "SM", ["M1PL", "m1pl"], "purl until last turn", "purl the turn", "p1", "turn", "Total: 156 (156, 160, 164, 168) 176, 184, 196 | Dos: 57 (57, 57, 59, 59) 63, 65, 71 | Devant: 67 (67, 67, 69, 69) 73, 75, 81 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"];
+        const row3_6th = ["Row 3 (6th time) ! Sl1wYO", "knit until 2nd marker", "SM", ["M1L", "m1l"], "knit until 3rd marker (beg)", ["M1R", "m1r"], "SM", "knit until 4th marker", "SM", ["M1L", "m1l"], "knit until last turn", "knit the turn", "k1", "turn", "Total: 159 (159, 163, 167, 171) 179, 187, 199 | Dos: 59 (59, 59, 61, 61) 65, 67, 73 | Devant: 68 (68, 68, 70, 70) 74, 76, 82 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"];
+        const row4_6th = ["Row 4 (6th time) ! Sl1wYO", "purl until 2nd marker (beg)", "SM", ["M1PL", "m1pl"], "purl until 3rd marker", ["M1PR", "m1pr"], "SM", "purl until 4th marker", "SM", ["M1PL", "m1pl"], "purl until last turn", "purl the turn", "p1", "turn", "Total: 162 (162, 166, 170, 174) 182, 190, 202 | Dos: 61 (61, 61, 63, 63) 67, 69, 75 | Devant: 69 (69, 69, 71, 71) 75, 77, 83 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"];
+        const row3_7th = ["Row 3 (7th time) ! Sl1wYO", "knit until 2nd marker", "SM", ["M1L", "m1l"], "knit until 3rd marker (beg)", ["M1R", "m1r"], "SM", "knit until 4th marker", "SM", ["M1L", "m1l"], "knit until last turn", "knit the turn", "k1", "turn", "Total: 165 (165, 169, 173, 177) 185, 193, 205 | Dos: 63 (63, 63, 65, 65) 69, 71, 77 | Devant: 70 (70, 70, 72, 72) 76, 78, 84 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"];
+        const row4_7th = ["Row 4 (7th time) ! Sl1wYO", "purl until 2nd marker (beg)", "SM", ["M1PL", "m1pl"], "purl until 3rd marker", ["M1PR", "m1pr"], "SM", "purl until 4th marker", "SM", ["M1PL", "m1pl"], "purl until last turn", "purl the turn", "p1", "turn", "Total: 168 (168, 172, 176, 180) 188, 196, 208 | Dos: 65 (65, 65, 67, 67) 71, 73, 79 | Devant: 71 (71, 71, 73, 73) 77, 79, 85 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"];
+        const row5 = ["Row 5 ! Sl1wYO", "knit until 2nd marker", "SM", ["M1L", "m1l"], "knit until 3rd marker (beginning/end of rnd)", ["M1R", "m1r"], "SM", "knit until 4th marker", "SM", ["M1L", "m1l"], "knit until the last turn", "knit the turn st", "k2", "turn", "Total: 171 (171, 175, 179, 183) 191, 199, 211 | Dos: 67 (67, 67, 69, 69) 73, 75, 81 | Devant: 72 (72, 72, 74, 74) 78, 80, 86 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"];
+        const row6 = ["Row 6 ! Sl1wYO", "purl until 2nd marker (beginning/end of rnd)", "SM", ["M1PL", "m1pl"], "purl until 3rd marker", ["M1PR", "m1pr"], "SM", "purl until 4th marker", "SM", ["M1PL", "m1pl"], "purl until last turn", "purl the turn st", "p2", "turn", "Total: 174 (174, 178, 182, 186) 194, 202, 214 | Dos: 69 (69, 69, 71, 71) 75, 77, 83 | Devant: 73 (73, 73, 75, 75) 79, 81, 87 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"];
+        const row7 = ["Row 7 ! Sl1wYO", "knit until 2nd marker", "SM", ["M1L", "m1l"], "knit until 3rd marker (beginning/end of rnd)", ["M1R", "m1r"], "SM", "knit until 4th marker", "SM", ["M1L", "m1l"], "knit until the last turn", "knit the turn st", "k3", "turn", "Total: 177 (177, 181, 185, 189) 197, 205, 217 | Dos: 71 (71, 71, 73, 73) 77, 79, 85 | Devant: 74 (74, 74, 76, 76) 80, 82, 88 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"];
+        const row8 = ["Row 8 ! Sl1wYO", "purl until 2nd marker (beginning/end of rnd)", "SM", ["M1PL", "m1pl"], "purl until 3rd marker", ["M1PR", "m1pr"], "SM", "purl until 4th marker", "SM", ["M1PL", "m1pl"], "purl until last turn", "purl the turn st", "p3", "turn", "Total: 180 (180, 184, 188, 192) 200, 208, 220 | Dos: 73 (73, 73, 75, 75) 79, 81, 87 | Devant: 75 (75, 75, 77, 77) 81, 83, 89 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"];
+        const row9 = ["Row 9 ! Sl1wYO", "knit until 2nd marker", "SM", ["M1L", "m1l"], "knit until 3rd marker (beginning/end of rnd)", ["M1R", "m1r"], "Total: 182 (182, 186, 190, 194) 202, 210, 222 | Dos: 75 (75, 75, 77, 77) 81, 83, 89 | Devant: 75 (75, 75, 77, 77) 81, 83, 89 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"];
+        const TRICOT_INSTRUCTIONS = [row1, row2, row3_1st, row4_1st, row3_2nd, row4_2nd, row3_3rd, row4_3rd, row3_4th, row4_4th, row3_5th, row4_5th, row3_6th, row4_6th, row3_7th, row4_7th, row5, row6, row7, row8, row9];
+        // Reconstruction de l'architecture plate (flat_steps) calquée sur Textual
+        const flatSteps = [];
+        TRICOT_INSTRUCTIONS.forEach((row, rowIdx) => {
+            const stepsInRow = row.slice(0, -1); // Exclure la chaîne des statistiques finales
+            stepsInRow.forEach((item, stepIdx) => {
+                let mainText = "";
+                let explanation = "";
+                // Conversion et extraction des types complexes (tuples/listes JS)
+                if (Array.isArray(item)) {
+                    mainText = `(${item[0]}, ${item[1]})`;
+                    // Extraire l'aide technique du glossaire si disponible
+                    explanation = TECHNICAL_GLOSSARY[item[1].toLowerCase()] || "";
+                } else {
+                    mainText = item;
+                    // Détection à la volée des mots isolés présents dans le glossaire pour l'explication automatique
+                    const cleanWord = item.replace(/[(),!]/g, "").trim().toLowerCase();
+                    explanation = TECHNICAL_GLOSSARY[cleanWord] || "";
+                }
+                // Nettoyage esthétique de la première instruction de ligne ("Row X !")
+                if (stepIdx === 0 && mainText.includes(" ! ")) {
+                    mainText = mainText.split(" ! ")[1];
+                }
+                flatSteps.push({
+                    text: `☁ ${mainText.toLowerCase()}`,
+                    explanation: explanation.toLowerCase(),
+                    row_num: rowIdx + 1,
+                    step_num: stepIdx + 1,
+                    total_steps_in_row: stepsInRow.length
+                });
+            });
         });
+        let currentIndex = 0;
+        const totalSteps = flatSteps.length;
+        // Persistance locale
+        function loadProgress() {
+            const savedIndex = localStorage.getItem('textual_knit_index');
+            if (savedIndex !== null) {
+                currentIndex = parseInt(savedIndex);
+                if (currentIndex >= totalSteps) currentIndex = 0;
+            }
         }
-
+        function saveProgress() {
+            localStorage.setItem('textual_knit_index', currentIndex);
+        }
+        // Moteur de rendu UI
+        function updateUI() {
+            const currentData = flatSteps[currentIndex];
+            document.getElementById("text-display").innerText = currentData.text;
+            document.getElementById("explanation-display").innerText = currentData.explanation;
+            const metaText = `row ${currentData.row_num} ✧ step ${currentData.step_num}/${currentData.total_steps_in_row} ⋆ global: ${currentIndex + 1}/${totalSteps}`;
+            document.getElementById("meta-info").innerText = metaText;
+            const percent = ((currentIndex + 1) / totalSteps) * 100;
+            document.getElementById("progress-fill").style.width = `${percent}%`;
+        }
+        // Actions
         function nextStep() {
-            const stepsCount = rows[currentRowIndex].length - 1;
-            currentStepIndex++;
-            if (currentStepIndex >= stepsCount) {
-                currentStepIndex = 0;
-                currentRowIndex++;
-            }
-            saveProgress();
-            updateUI();
-        }
-
-        function prevStep() {
-            if (currentStepIndex > 0) {
-                currentStepIndex--;
-            } else if (currentRowIndex > 0) {
-                currentRowIndex--;
-                currentStepIndex = rows[currentRowIndex].length - 2;
-            }
-            saveProgress();
-            updateUI();
-        }
-
-        function resetApp() {
-            if (confirm("Voulez-vous vraiment reprendre au tout début (Rang 1) ?")) {
-                currentRowIndex = 0;
-                currentStepIndex = 0;
+            if (currentIndex < totalSteps - 1) {
+                currentIndex++;
                 saveProgress();
                 updateUI();
             }
         }
-        // Initialisation
+        function prevStep() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                saveProgress();
+                updateUI();
+            }
+        }
+        function resetApp() {
+            if (confirm("☁ recommencer au tout début ?")) {
+                currentIndex = 0;
+                saveProgress();
+                updateUI();
+            }
+        }
+        // Click sur l'écran / Box tactile (Clic sur la moitié droite = Next, moitié gauche = Back)
+        function handleScreenClick(event) {
+            const rect = event.currentTarget.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            if (x > rect.width / 2) {
+                nextStep();
+            } else {
+                prevStep();
+            }
+        }
+        // Écouteur des touches du clavier (Identique à BINDINGS de Textual)
+        window.addEventListener("keydown", function (event) {
+            switch (event.key) {
+                case "ArrowLeft":
+                    prevStep();
+                    break;
+                case "ArrowRight":
+                case " ": // Barre Espace
+                    event.preventDefault(); // évite le scroll de page
+                    nextStep();
+                    break;
+                case "q":
+                case "Q":
+                    if (confirm("☁ fermer l'application ?")) {
+                        window.close();
+                    }
+                    break;
+            }
+        });
+        // Gestion de l'horloge système en haut à droite
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toTimeString().split(' ')[0];
+            document.getElementById("header-clock").innerText = timeString;
+        }
+        setInterval(updateClock, 1000);
+        // Lancement initial
+        updateClock();
         loadProgress();
         updateUI();
     </script>
