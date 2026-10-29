@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mon Compteur de Tricot</title>
+    <!-- Balises pour simuler une application iOS native -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Tricot App">
+
+    <style>
+        :root {
+            --bg-color: #f5f5f7;
+            --card-color: #ffffff;
+            --text-color: #1d1d1f;
+            --accent-color: #0071e3;
+            --secondary-text: #86868b;
+            --active-step-bg: #e8f2fc;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            margin-top: 20px;
+        }
+
+        .stats-card {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .stats-title {
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 5px;
+        }
+
+        .instructions-list {
+            background-color: var(--card-color);
+            border-radius: 12px;
+            padding: 10px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid #f2f2f7;
+            font-size: 1rem;
+            transition: background-color 0.2s;
+        }
+
+        .step:last-child {
+            border-bottom: none;
+        }
+
+        .step.active {
+            background-color: var(--active-step-bg);
+            font-weight: 600;
+        }
+
+        .step-number {
+            min-width: 25px;
+            color: var(--secondary-text);
+            font-size: 0.85rem;
+        }
+
+        .step.active .step-number {
+            color: var(--accent-color);
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 10px;
+            width: 100%;
+        }
+
+        button {
+            border: none;
+            border-radius: 12px;
+            padding: 15px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.1s;
+        }
+
+        button:active {
+            opacity: 0.7;
+        }
+
+        .btn-back {
+            background-color: #e8e8ed;
+            color: var(--text-color);
+        }
+
+        .btn-next {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .btn-reset {
+            background-color: transparent;
+            color: #ff3b30;
+            margin-top: 20px;
+            font-size: 0.85rem;
+            width: 100%;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="stats-card">
+            <div class="stats-title" id="row-title">Chargement...</div>
+            <div id="row-stats" style="color: var(--secondary-text);"></div>
+        </div>
+
+        <div class="instructions-list" id="instructions-container">
+            <!-- Rempli dynamiquement -->
+        </div>
+
+        <div class="controls">
+            <button class="btn-back" onclick="prevStep()">Retour</button>
+            <button class="btn-next" onclick="nextStep()">Suivant</button>
+        </div>
+
+        <button class="btn-reset" onclick="resetApp()">Remettre à zéro</button>
+    </div>
+
+    <script>
+        // Votre base de données de lignes de tricot
+        const rows = [
+            ["Row 1 ! Knit until 1st marker", "SM", "M1L", "k2", "turn", "Total: 123 (123, 127, 131, 135) 143, 151, 163 | Dos: 35 (35, 35, 37, 37) 41, 43, 49 | Devant: 56 (56, 56, 58, 58) 62, 64, 70 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
+            ["Row 2 ! Sl1wYO", "purl until 2nd marker (beg)", "SM", "M1PL", "purl until 3rd marker", "M1PR", "SM", "purl until 4th marker", "SM", "M1PL", "p2", "turn", "Total: 126 (126, 130, 134, 138) 146, 154, 166 | Dos: 37 (37, 37, 39, 39) 43, 45, 51 | Devant: 57 (57, 57, 59, 59) 63, 65, 71 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
+            ["Row 3 (1st time) ! Sl1wYO", "knit until 2nd marker", "SM", "M1L", "knit until 3rd marker (beg)", "M1R", "SM", "knit until 4th marker", "SM", "M1L", "knit until last turn", "knit the turn", "k1", "turn", "Total: 129 (129, 133, 137, 141) 149, 157, 169 | Dos: 39 (39, 39, 41, 41) 45, 47, 53 | Devant: 58 (58, 58, 60, 60) 64, 66, 72 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
+            ["Row 4 (1st time) ! Sl1wYO", "purl until 2nd marker (beg)", "SM", "M1PL", "purl until 3rd marker", "M1PR", "SM", "purl until 4th marker", "SM", "M1PL", "purl until last turn", "purl the turn", "p1", "turn", "Total: 132 (132, 136, 140, 144) 152, 160, 172 | Dos: 41 (41, 41, 43, 43) 47, 49, 55 | Devant: 59 (59, 59, 61, 61) 65, 67, 73 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
+            ["Row 3 (2nd time) ! Sl1wYO", "knit until 2nd marker", "SM", "M1L", "knit until 3rd marker (beg)", "M1R", "SM", "knit until 4th marker", "SM", "M1L", "knit until last turn", "knit the turn", "k1", "turn", "Total: 135 (135, 139, 143, 147) 155, 163, 175 | Dos: 43 (43, 43, 45, 45) 49, 51, 57 | Devant: 60 (60, 60, 62, 62) 66, 68, 74 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
+            ["Row 4 (2nd time) ! Sl1wYO", "purl until 2nd marker (beg)", "SM", "M1PL", "purl until 3rd marker", "M1PR", "SM", "purl until 4th marker", "SM", "M1PL", "purl until last turn", "purl the turn", "p1", "turn", "Total: 138 (138, 142, 146, 150) 158, 166, 178 | Dos: 45 (45, 45, 47, 47) 51, 53, 59 | Devant: 61 (61, 61, 63, 63) 67, 69, 75 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
+            ["Row 3 (3rd time) ! Sl1wYO", "knit until 2nd marker", "SM", "M1L", "knit until 3rd marker (beg)", "M1R", "SM", "knit until 4th marker", "SM", "M1L", "knit until last turn", "knit the turn", "k1", "turn", "Total: 141 (141, 145, 149, 153) 161, 169, 181 | Dos: 47 (47, 47, 49, 49) 53, 55, 61 | Devant: 62 (62, 62, 64, 64) 68, 70, 76 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
+            ["Row 4 (3rd time) ! Sl1wYO", "purl until 2nd marker (beg)", "SM", "M1PL", "purl until 3rd marker", "M1PR", "SM", "purl until 4th marker", "SM", "M1PL", "purl until last turn", "purl the turn", "p1", "turn", "Total: 144 (144, 148, 152, 156) 164, 172, 184 | Dos: 49 (49, 49, 51, 51) 55, 57, 63 | Devant: 63 (63, 63, 65, 65) 69, 71, 77 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
+            ["Row 3 (4th time) ! Sl1wYO", "knit until 2nd marker", "SM", "M1L", "knit until 3rd marker (beg)", "M1R", "SM", "knit until 4th marker", "SM", "M1L", "knit until last turn", "knit the turn", "k1", "turn", "Total: 147 (147, 151, 155, 159) 167, 175, 187 | Dos: 51 (51, 51, 53, 53) 57, 59, 65 | Devant: 64 (64, 64, 66, 66) 70, 72, 78 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
+            ["Row 4 (4th time) ! Sl1wYO", "purl until 2nd marker (beg)", "SM", "M1PL", "purl until 3rd marker", "M1PR", "SM", "purl until 4th marker", "SM", "M1PL", "purl until last turn", "purl the turn", "p1", "turn", "Total: 150 (150, 154, 158, 162) 170, 178, 190 | Dos: 53 (53, 53, 55, 55) 59, 61, 67 | Devant: 65 (65, 65, 67, 67) 71, 73, 79 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
+            ["Row 3 (5th time) ! Sl1wYO", "knit until 2nd marker", "SM", "M1L", "knit until 3rd marker (beg)", "M1R", "SM", "knit until 4th marker", "SM", "M1L", "knit until last turn", "knit the turn", "k1", "turn", "Total: 153 (153, 157, 161, 165) 173, 181, 193 | Dos: 55 (55, 55, 57, 57) 61, 63, 69 | Devant: 66 (66, 66, 68, 68) 72, 74, 80 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
+            ["Row 4 (5th time) ! Sl1wYO", "purl until 2nd marker (beg)", "SM", "M1PL", "purl until 3rd marker", "M1PR", "SM", "purl until 4th marker", "SM", "M1PL", "purl until last turn", "purl the turn", "p1", "turn", "Total: 156 (156, 160, 164, 168) 176, 184, 196 | Dos: 57 (57, 57, 59, 59) 63, 65, 71 | Devant: 67 (67, 67, 69, 69) 73, 75, 81 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
+            ["Row 3 (6th time) ! Sl1wYO", "knit until 2nd marker", "SM", "M1L", "knit until 3rd marker (beg)", "M1R", "SM", "knit until 4th marker", "SM", "M1L", "knit until last turn", "knit the turn", "k1", "turn", "Total: 159 (159, 163, 167, 171) 179, 187, 199 | Dos: 59 (59, 59, 61, 61) 65, 67, 73 | Devant: 68 (68, 68, 70, 70) 74, 76, 82 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
+            ["Row 4 (6th time) ! Sl1wYO", "purl until 2nd marker (beg)", "SM", "M1PL", "purl until 3rd marker", "M1PR", "SM", "purl until 4th marker", "SM", "M1PL", "purl until last turn", "purl the turn", "p1", "turn", "Total: 162 (162, 166, 170, 174) 182, 190, 202 | Dos: 61 (61, 61, 63, 63) 67, 69, 75 | Devant: 69 (69, 69, 71, 71) 75, 77, 83 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
+            ["Row 3 (7th time) ! Sl1wYO", "knit until 2nd marker", "SM", "M1L", "knit until 3rd marker (beg)", "M1R", "SM", "knit until 4th marker", "SM", "M1L", "knit until last turn", "knit the turn", "k1", "turn", "Total: 165 (165, 169, 173, 177) 185, 193, 205 | Dos: 63 (63, 63, 65, 65) 69, 71, 77 | Devant: 70 (70, 70, 72, 72) 76, 78, 84 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
+            ["Row 4 (7th time) ! Sl1wYO", "purl until 2nd marker (beg)", "SM", "M1PL", "purl until 3rd marker", "M1PR", "SM", "purl until 4th marker", "SM", "M1PL", "purl until last turn", "purl the turn", "p1", "turn", "Total: 168 (168, 172, 176, 180) 188, 196, 208 | Dos: 65 (65, 65, 67, 67) 71, 73, 79 | Devant: 71 (71, 71, 73, 73) 77, 79, 85 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
+            ["Row 5 ! Sl1wYO", "knit until 2nd marker", "SM", "M1L", "knit until 3rd marker (beginning/end of rnd)", "M1R", "SM", "knit until 4th marker", "SM", "M1L", "knit until the last turn", "knit the turn st", "k2", "turn", "Total: 171 (171, 175, 179, 183) 191, 199, 211 | Dos: 67 (67, 67, 69, 69) 73, 75, 81 | Devant: 72 (72, 72, 74, 74) 78, 80, 86 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
+            ["Row 6 ! Sl1wYO", "purl until 2nd marker (beginning/end of rnd)", "SM", "M1PL", "purl until 3rd marker", "M1PR", "SM", "purl until 4th marker", "SM", "M1PL", "purl until last turn", "purl the turn st", "p2", "turn", "Total: 174 (174, 178, 182, 186) 194, 202, 214 | Dos: 69 (69, 69, 71, 71) 75, 77, 83 | Devant: 73 (73, 73, 75, 75) 79, 81, 87 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
+            ["Row 7 ! Sl1wYO", "knit until 2nd marker", "SM", "M1L", "knit until 3rd marker (beginning/end of rnd)", "M1R", "SM", "knit until 4th marker", "SM", "M1L", "knit until the last turn", "knit the turn st", "k3", "turn", "Total: 177 (177, 181, 185, 189) 197, 205, 217 | Dos: 71 (71, 71, 73, 73) 77, 79, 85 | Devant: 74 (74, 74, 76, 76) 80, 82, 88 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
+            ["Row 8 ! Sl1wYO", "purl until 2nd marker (beginning/end of rnd)", "SM", "M1PL", "purl until 3rd marker", "M1PR", "SM", "purl until 4th marker", "SM", "M1PL", "purl until last turn", "purl the turn st", "p3", "turn", "Total: 180 (180, 184, 188, 192) 200, 208, 220 | Dos: 73 (73, 73, 75, 75) 79, 81, 87 | Devant: 75 (75, 75, 77, 77) 81, 83, 89 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"],
+            ["Row 9 ! Sl1wYO", "knit until 2nd marker", "SM", "M1L", "knit until 3rd marker (beginning/end of rnd)", "M1R", "Total: 182 (182, 186, 190, 194) 202, 210, 222 | Dos: 75 (75, 75, 77, 77) 81, 83, 89 | Devant: 75 (75, 75, 77, 77) 81, 83, 89 | Épaules: 16 (16, 18, 18, 20) 20, 22, 22"]
+        ];
+        // Indices d'état (Ligne actuelle, Étape actuelle)
+        let currentRowIndex = 0;
+        let currentStepIndex = 0;
+        // Charger l'état sauvegardé au démarrage
+        function loadProgress() {
+            const savedRow = localStorage.getItem('knitting_row');
+            const savedStep = localStorage.getItem('knitting_step');
+            if (savedRow !== null && savedStep !== null) {
+                currentRowIndex = parseInt(savedRow);
+                currentStepIndex = parseInt(savedStep);
+            }
+        }
+        // Sauvegarder l'état actuel
+        function saveProgress() {
+            localStorage.setItem('knitting_row', currentRowIndex);
+            localStorage.setItem('knitting_step', currentStepIndex);
+        }
+
+        // Mettre à jour l'interface utilisateur
+        function updateUI() {
+            if (currentRowIndex >= rows.length) {
+                document.getElementById('row-title').innerText = "🎉 Félicitations !";
+                document.getElementById('row-stats').innerText = "Toutes les lignes ont été complétées.";
+                document.getElementById('instructions-container').innerHTML = "Plus d'étapes à faire !";
+                return;
+            }
+            const rowData = rows[currentRowIndex];
+            const steps = rowData.slice(0, -1); // Toutes les étapes d'action
+            const stats = rowData[rowData.length - 1]; // La chaîne finale des statistiques
+            // Extraction du titre à partir de la première étape
+            const titleMatch = steps[0].split(" ! ");
+            const displayTitle = titleMatch.length > 1 ? titleMatch[0] : `Rang ${ currentRowIndex + 1}`;
+        document.getElementById('row-title').innerText = displayTitle;
+        document.getElementById('row-stats').innerText = stats;
+        // Rendu graphique des étapes
+        const container = document.getElementById('instructions-container');
+        container.innerHTML = "";
+        steps.forEach((stepText, index) => {
+            let cleanText = stepText;
+            // Nettoyer le tag "Row X !" de la première étape pour l'affichage épuré
+            if (index === 0 && stepText.includes(" ! ")) {
+                cleanText = stepText.split(" ! ")[1];
+            }
+            const stepDiv = document.createElement('div');
+            stepDiv.className = `step ${ index === currentStepIndex ? 'active' : '' }`;
+            stepDiv.innerHTML = <><div class="step-number">${index + 1}</div> <div class="step-text">${cleanText}</div></>;
+            container.appendChild(stepDiv);
+        });
+        }
+
+        function nextStep() {
+            const stepsCount = rows[currentRowIndex].length - 1;
+            currentStepIndex++;
+            if (currentStepIndex >= stepsCount) {
+                currentStepIndex = 0;
+                currentRowIndex++;
+            }
+            saveProgress();
+            updateUI();
+        }
+
+        function prevStep() {
+            if (currentStepIndex > 0) {
+                currentStepIndex--;
+            } else if (currentRowIndex > 0) {
+                currentRowIndex--;
+                currentStepIndex = rows[currentRowIndex].length - 2;
+            }
+            saveProgress();
+            updateUI();
+        }
+
+        function resetApp() {
+            if (confirm("Voulez-vous vraiment reprendre au tout début (Rang 1) ?")) {
+                currentRowIndex = 0;
+                currentStepIndex = 0;
+                saveProgress();
+                updateUI();
+            }
+        }
+        // Initialisation
+        loadProgress();
+        updateUI();
+    </script>
+</body>
+
+</html>
