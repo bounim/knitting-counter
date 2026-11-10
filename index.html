@@ -294,7 +294,7 @@
         // Reconstruction de l'architecture plate (flat_steps) calquée sur Textual
         const flatSteps = [];
         TRICOT_INSTRUCTIONS.forEach((row, rowIdx) => {
-            const stepsInRow = row.slice(0, -1); // Exclure la chaîne des statistiques finales
+            const stepsInRow = row;
             stepsInRow.forEach((item, stepIdx) => {
                 let mainText = "";
                 let explanation = "";
