@@ -318,6 +318,7 @@
                     explanation: explanation.toLowerCase(),
                     row_num: rowIdx + 1,
                     step_num: stepIdx + 1,
+                    step_stitches: stitchCount,
                     total_steps_in_row: stepsInRow.length
                 });
             });
@@ -340,7 +341,8 @@
             const currentData = flatSteps[currentIndex];
             document.getElementById("text-display").innerText = currentData.text;
             document.getElementById("explanation-display").innerText = currentData.explanation;
-            const metaText = `row ${currentData.row_num} ✧ step ${currentData.step_num}/${currentData.total_steps_in_row} ⋆ global: ${currentIndex + 1}/${totalSteps}`;
+            // const metaText = `row ${currentData.row_num} ✧ step ${currentData.step_num}/${currentData.total_steps_in_row} ⋆ global: ${currentIndex + 1}/${totalSteps}`;
+            const metaText = `row ${currentData.row_num} ✧ step ${currentData.step_num}/${currentData.total_steps_in_row} ⋆ step stitches: ${currentData.step_stitches} ⋆ total for row: ${currentData.total_stitches_for_row}${recap_text}`;
             document.getElementById("meta-info").innerText = metaText;
             const percent = ((currentIndex + 1) / totalSteps) * 100;
             document.getElementById("progress-fill").style.width = `${percent}%`;
