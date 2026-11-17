@@ -212,6 +212,24 @@
             transform: translateY(4px);
             box-shadow: 0 0px 0px var(--purple-bar);
         }
+
+        .reset-btn {
+            margin-left: auto;
+            background-color: var(--mediumslateblue);
+            color: var(--lavenderblush);
+            border: 1px solid var(--purple-bar);
+            border-radius: 12px;
+            padding: 2px 10px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+        }
+
+        .reset-btn:hover {
+            background-color: var(--purple-bar);
+        }
     </style>
 </head>
 
@@ -248,6 +266,7 @@
         <div class="binding-item"><span class="key">right</span><span class="description">✧ next</span></div>
         <div class="binding-item"><span class="key">space</span><span class="description">⋆ space</span></div>
         <div class="binding-item"><span class="key">q</span><span class="description">☁ quit</span></div>
+        <button class="reset-btn" onclick="resetApp()">↺ reset</button>
     </footer>
 
     <script src="knitting_pattern_size_2.js"></script>
