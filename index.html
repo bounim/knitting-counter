@@ -66,7 +66,8 @@
         .viewport-center {
             flex: 1;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            justify-content: space-evenly;
             align-items: center;
             width: 100%;
             padding: 20px;
@@ -258,6 +259,9 @@
                 <div class="progress-bar-fill" id="progress-fill"></div>
             </div>
         </div>
+        <div id="bottom-container">
+            <button class="cute-btn reset-btn" onclick="resetApp()">↺ reset</button>
+        </div>
     </div>
 
     <!-- Footer Widget (Bindings Reference) -->
@@ -266,7 +270,6 @@
         <div class="binding-item"><span class="key">right</span><span class="description">✧ next</span></div>
         <div class="binding-item"><span class="key">space</span><span class="description">⋆ space</span></div>
         <div class="binding-item"><span class="key">q</span><span class="description">☁ quit</span></div>
-        <button class="reset-btn" onclick="resetApp()">↺ reset</button>
     </footer>
 
     <script src="knitting_pattern_size_2.js"></script>
